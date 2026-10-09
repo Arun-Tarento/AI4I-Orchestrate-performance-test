@@ -2,18 +2,18 @@
 
 Load tests for the AI4I orchestration layer on `POST /api/v1/chat`, run with [Locust](https://locust.io) against a stubbed model.
 
-**Objective:** optimise each component on the `/api/v1/chat` path so the latency the orchestration layer adds stays within **10 ms (target) and 15 ms (ceiling)**. The stub is assumed to add no latency, so measured end-to-end latency is treated as AI4I overhead, a deliberately conservative upper bound.
+**Objective:** optimise each component on the `/api/v1/chat` path so the latency the orchestration layer adds stays within **10 ms, at more than 1,000 RPS**. The stub is assumed to add no latency, so measured end-to-end latency is treated as AI4I overhead, a deliberately conservative upper bound.
 
 ## Perf testing summary
 
-On the final setup, the path sustained **1,240 RPS for 2 hours** (8.9M requests, 0.00% failures).
+On the final setup, the path sustained **1,240 RPS for 2 hours** (8.9M requests, 0.00% failures), 24% above the 1,000 RPS requirement.
 
-| Metric       | Result | Against 10 ms target / 15 ms ceiling        |
+| Metric       | Result | Against the 10 ms SLA                       |
 | ------------ | ------ | ------------------------------------------- |
-| Median (P50) | 11 ms  | about at target                             |
-| Average      | 15 ms  | at ceiling, no margin                       |
-| P95          | 40 ms  | above the band (observed tail, not the SLA) |
-| P99          | 86 ms  | above the band (observed tail, not the SLA) |
+| Median (P50) | 11 ms  | within 1 ms of it                           |
+| Average      | 15 ms  | 5 ms above it                               |
+| P95          | 40 ms  | tail behaviour only, not the SLA            |
+| P99          | 86 ms  | tail behaviour only, not the SLA            |
 
 Full analysis: [docs/report.md](docs/report.md).
 
@@ -73,7 +73,7 @@ More detail: [docs/environment.md](docs/environment.md). The diagram shows the c
 
 | Doc                                       | What it covers                                                                                                                                                 |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docs/report.md](docs/report.md)           | Findings and component analysis (plugins, Auth, tracing, Inference, Platform Core, Nginx, infrastructure, distributed run, Kafka), recommendations, open items |
+| [docs/report.md](docs/report.md)           | Findings and the steps taken to improve performance (plugins, Auth, Inference, Platform Core, Nginx, infrastructure, distributed run, Kafka) |
 | [docs/methodology.md](docs/methodology.md) | SLA definition, what is measured, request behaviour, and where each number came from                                                                           |
 | [docs/environment.md](docs/environment.md) | System under test, infrastructure, and how to run the tests                                                                                                    |
 
@@ -103,5 +103,5 @@ runs/      reported run data (CSV)
 ## Notes
 
 - Only `/api/v1/chat` is covered. Runs that show a progression are reported, and failed runs were test defects and are ignored.
-- Sections 4.1, 4.2 and 4.6 of the report came from separate isolated-hop scripts that are not in this repository. See [docs/methodology.md](docs/methodology.md#where-the-numbers-came-from).
+- Sections 4.1, 4.2 and 4.5 of the report came from separate isolated-hop scripts that are not in this repository. See [docs/methodology.md](docs/methodology.md#where-the-numbers-came-from).
 - The request payload and behaviour are fixed. Changing them invalidates the reported numbers.

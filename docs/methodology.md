@@ -4,9 +4,9 @@ How the `/api/v1/chat` load tests were run and how to read the numbers.
 
 ## What is measured
 
-- **SLA = overhead the AI4I layer adds to an inference request**: auth, plugins, gateway hops, and capturing information for visibility. Target 10 ms, ceiling 15 ms.
-- **The model is a stub.** It is assumed to add no latency, so measured end-to-end latency is treated as AI4I overhead. This is a deliberate, conservative upper bound: Locust client time and the network hop to Nginx are counted too, so the true overhead is at most the measured value. The stub's own response time has not been measured yet (see [open items](report.md#open-items)).
-- **Pass/fail metric: median and average latency.** P95 and P99 are reported as observed tail behaviour, not as the SLA. Which of median, average or both is the pass/fail metric is still to be confirmed.
+- **SLA = overhead the AI4I layer adds to an inference request**: auth, plugins, gateway hops, and capturing information for visibility. The SLA is 10 ms, at more than 1,000 RPS.
+- **The model is a stub.** It is assumed to add no latency, so measured end-to-end latency is treated as AI4I overhead. This is a deliberate, conservative upper bound: Locust client time and the network hop to Nginx are counted too, so the true overhead is at most the measured value. The stub's own response time is still to be measured.
+- **Pass/fail metrics: median and average latency.** P95 and P99 are reported as tail behaviour only.
 - **Asynchronous visibility work is out of the budget.** Tracing and PPU usage events (Kafka) do not sit on the synchronous request path.
 
 ## Scope
@@ -36,8 +36,8 @@ How the `/api/v1/chat` load tests were run and how to read the numbers.
 ## Where the numbers came from
 
 - Numbers come from the Google Sheet "Load and peformance analysis - release2.5". [`runs/runs.csv`](../runs/runs.csv) records the reported runs, and [`runs/kafka-partitions.csv`](../runs/kafka-partitions.csv) the Kafka partition spread.
-- **Sections 4.1, 4.2 and 4.6 of the report did not come from `chat_load.py`.** They came from separate isolated-hop scripts that are not in this repository:
-  - a plugin-latency script, which hit dedicated test endpoints on the gateway (no plugins, auth plugin only, full plugin stack) to measure the cost of each gateway stage. It supplied all of 4.1, the 28 Jul 3-Auth row of 4.2, and all of 4.6 (through APISIX, skipping APISIX, and keep-alive 100);
+- **Sections 4.1, 4.2 and 4.5 of the report did not come from `chat_load.py`.** They came from separate isolated-hop scripts that are not in this repository:
+  - a plugin-latency script, which hit dedicated test endpoints on the gateway (no plugins, auth plugin only, full plugin stack) to measure the cost of each gateway stage. It supplied all of 4.1, the 28 Jul 3-Auth row of 4.2, and all of 4.5 (through APISIX, skipping APISIX, and keep-alive 100);
   - an auth-validate script, which called the Auth service directly, bypassing Nginx and APISIX, to measure the Auth pod on its own (the first row of 4.2).
 
   `runs/runs.csv` holds only the runs shown in the report. Its `source` column says which script produced each row (`chat_load`, `isolated_plugin_latency` or `isolated_auth_validate`). Do not read the isolated rows as `/api/v1/chat` runs.

@@ -22,10 +22,10 @@ The Inference pod returns a stubbed response with no model call, so the test iso
 | Inference | 5 | 1 Uvicorn worker each |
 | Platform Core | 3 | |
 | APISIX | 2 | |
-| Nginx | 1 | keep-alive 100 tested in 4.6; keep it on |
+| Nginx | 1 | keep-alive 100 tested in 4.5; keep it on |
 | Kafka consumer (PPU) | 8 | 8 partitions (the 5 Aug run had the consumer enabled on 4 partitions) |
 
-Whether the 5 Aug two-hour run used exactly this setup is listed in the [open items](report.md#open-items).
+The 5 Aug two-hour run is described in [report.md](report.md#47-distributed-load-generation-2-hour-run-5-aug).
 
 ## Infrastructure
 
@@ -91,14 +91,14 @@ Settings common to every run (locustfile, `think-time = 0`) are in [`locust/locu
 | Runs | Users (`-u`) | Spawn rate (`-r`) | Duration |
 |---|---|---|---|
 | 21 Jul, plugin and auth tests (4.1, 4.2) | 25 | 5 | 3 min |
-| 28 Jul, Auth, Inference, Platform Core and Nginx tests (4.2, 4.4 to 4.6) | 20 | 5 | 3 min |
-| 30 Jul, infrastructure and load-generator upgrade (4.7) | 20, then 30 | 5 | 3 min |
-| 5 Aug, distributed (4.8) | 20 | 2 | 2 h |
-| 18 Aug, single load generator (4.9) | 30 | 5 | 3 min |
-| 19 Aug, distributed (4.9) | 20 | 2 | 30 min, `--think-time 0.005` |
-| 2 Sep, distributed, partition spread (4.9) | 10 | 2 | 30 min |
+| 28 Jul, Auth, Inference, Platform Core and Nginx tests (4.2, 4.3 to 4.5) | 20 | 5 | 3 min |
+| 30 Jul, infrastructure and load-generator upgrade (4.6) | 20, then 30 | 5 | 3 min |
+| 5 Aug, distributed (4.7) | 20 | 2 | 2 h |
+| 18 Aug, single load generator (4.8) | 30 | 5 | 3 min |
+| 19 Aug, distributed (4.8) | 20 | 2 | 30 min, `--think-time 0.005` |
+| 2 Sep, distributed, partition spread (4.8) | 10 | 2 | 30 min |
 
-The 20 Jul tracing runs (4.3) used 25 users for 3 minutes (spawn rate 5). Think time was 0 in every reported run except the 19 Aug runs (0.005 s; `--think-time` is in seconds). The reported runs are in [`runs/runs.csv`](../runs/runs.csv).
+Think time was 0 in every reported run except the 19 Aug runs (0.005 s; `--think-time` is in seconds). The reported runs are in [`runs/runs.csv`](../runs/runs.csv).
 
 ## Reading your results
 
@@ -113,4 +113,4 @@ The 20 Jul tracing runs (4.3) used 25 users for 3 minutes (spawn rate 5). Think 
 
 - The per-key rows (`/api/v1/chat [Admin]` and so on) should be close to each other. A large gap between keys points to a problem with that key or tenant, not with the stack.
 - Compare a run only with a run on the same kind of infrastructure, user count and duration. The reference results are in [report.md](report.md).
-- Judge against the SLA as defined in [methodology.md](methodology.md#what-is-measured): median and average against 10 ms (target) and 15 ms (ceiling), with P95 and P99 as observed tail behaviour.
+- Judge against the SLA as defined in [methodology.md](methodology.md#what-is-measured): median and average against the 10 ms SLA, with P95 and P99 as tail behaviour only.

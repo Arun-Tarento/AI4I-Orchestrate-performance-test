@@ -103,5 +103,5 @@ runs/      reported run data (CSV)
 ## Notes
 
 - Only `/api/v1/chat` is covered. Runs that show a progression are reported, and failed runs were test defects and are ignored.
-- Sections 4.1, 4.2 and 4.5 of the report came from separate isolated-hop scripts that are not in this repository. See [docs/methodology.md](docs/methodology.md#where-the-numbers-came-from).
+- Sections 4.1 and 4.5 of the report, and the isolated Auth and control-run figures quoted in 4.2, came from separate isolated-hop scripts that are not in this repository. See [docs/methodology.md](docs/methodology.md#where-the-numbers-came-from).
 - The request payload and behaviour are fixed. Changing them invalidates the reported numbers.

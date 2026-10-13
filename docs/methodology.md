@@ -17,7 +17,7 @@ How the `/api/v1/chat` load tests were run and how to read the numbers.
 
 ## Load generator
 
-- [Locust](https://locust.io), driven by [`locust/chat_load.py`](../locust/chat_load.py). Each Locust user acts as one real client and fires requests back to back (think time 0, except the 18 and 19 Aug Kafka runs, which used 0.005 to 0.1 s).
+- [Locust](https://locust.io), driven by [`locust/chat_load.py`](../locust/chat_load.py). Each Locust user acts as one real client and fires requests back to back (think time 0, except the 18 and 19 Aug Kafka runs, which used 0.005 s).
 - **Request behaviour is fixed. Changing any of it invalidates the numbers:**
   - `stream=False`
   - one fixed, heavy "turn 20" payload ([`locust/payloads/chat_turn20.json`](../locust/payloads/chat_turn20.json)): the full conversation history plus tool definitions
@@ -31,14 +31,16 @@ How the `/api/v1/chat` load tests were run and how to read the numbers.
 - Runs were 3 minutes for most component tests, 5 to 30 minutes later, and 2 hours for the final sustained run.
 - Metrics per run: RPS, average, P50, P95 and P99 latency, failures, and the replica, CPU and memory settings of each component.
 - Each component was tested by changing its settings and comparing against the run before it. Where several settings changed together, the report says so and treats the gain as a combined effect.
-- In every report table, Δ is the change in RPS against the first row of that table, unless the row says otherwise.
+- Each report table shows one change, before and after. Improvement in RPS is the change in requests per second. Improvement in latency is the fall in average latency (a negative value means latency rose).
 
 ## Where the numbers came from
 
 - Numbers come from the Google Sheet "Load and peformance analysis - release2.5". [`runs/runs.csv`](../runs/runs.csv) records the reported runs, and [`runs/kafka-partitions.csv`](../runs/kafka-partitions.csv) the Kafka partition spread.
-- **Sections 4.1, 4.2 and 4.5 of the report did not come from `chat_load.py`.** They came from separate isolated-hop scripts that are not in this repository:
-  - a plugin-latency script, which hit dedicated test endpoints on the gateway (no plugins, auth plugin only, full plugin stack) to measure the cost of each gateway stage. It supplied all of 4.1, the 28 Jul 3-Auth row of 4.2, and all of 4.5 (through APISIX, skipping APISIX, and keep-alive 100);
-  - an auth-validate script, which called the Auth service directly, bypassing Nginx and APISIX, to measure the Auth pod on its own (the first row of 4.2).
+- **Sections 4.1 and 4.5, and the isolated figures quoted in 4.2, did not come from `chat_load.py`.** They came from separate isolated-hop scripts that are not in this repository:
+  - a plugin-latency script, which hit dedicated test endpoints on the gateway (no plugins, auth plugin only, full plugin stack, and Nginx straight to Inference, skipping APISIX) to measure the cost of each gateway stage. It supplied all of 4.1 (21 and 28 Jul), all of 4.5 (keep-alive 100), and the larger-load-generator control run in the notes of 4.2;
+  - an auth-validate script, which called the Auth service directly, bypassing Nginx and APISIX, to measure the Auth pod on its own (71 ms and 323 RPS, quoted in the overview of 4.2).
+
+  The table in 4.2 itself compares two `/api/v1/chat` runs (21 Jul and 28 Jul).
 
   `runs/runs.csv` holds only the runs shown in the report. Its `source` column says which script produced each row (`chat_load`, `isolated_plugin_latency` or `isolated_auth_validate`). Do not read the isolated rows as `/api/v1/chat` runs.
 - Where the sheet is silent on a cause, the report marks it as not established rather than inferring one.

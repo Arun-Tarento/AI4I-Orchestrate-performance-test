@@ -90,15 +90,15 @@ Settings common to every run (locustfile, `think-time = 0`) are in [`locust/locu
 
 | Runs | Users (`-u`) | Spawn rate (`-r`) | Duration |
 |---|---|---|---|
-| 21 Jul, plugin and auth tests (4.1, 4.2) | 25 | 5 | 3 min |
-| 28 Jul, Auth, Inference, Platform Core and Nginx tests (4.2, 4.3 to 4.5) | 20 | 5 | 3 min |
+| 21 Jul, plugin, Auth and `/chat` tests (4.1, 4.2) | 25 | 5 | 3 min |
+| 28 Jul, APISIX, Auth, Inference, Platform Core and Nginx tests (4.1 to 4.5) | 20 | 5 | 3 min |
 | 30 Jul, infrastructure and load-generator upgrade (4.6) | 20, then 30 | 5 | 3 min |
 | 5 Aug, distributed (4.7) | 20 | 2 | 2 h |
-| 18 Aug, single load generator (4.8) | 30 | 5 | 3 min |
+| 18 Aug, distributed (4.8) | 20 | 2 | 5 min, `--think-time 0.005` |
 | 19 Aug, distributed (4.8) | 20 | 2 | 30 min, `--think-time 0.005` |
 | 2 Sep, distributed, partition spread (4.8) | 10 | 2 | 30 min |
 
-Think time was 0 in every reported run except the 19 Aug runs (0.005 s; `--think-time` is in seconds). The reported runs are in [`runs/runs.csv`](../runs/runs.csv).
+Think time was 0 in every reported run except the 18 and 19 Aug runs (0.005 s; `--think-time` is in seconds). The reported runs are in [`runs/runs.csv`](../runs/runs.csv).
 
 ## Reading your results
 
